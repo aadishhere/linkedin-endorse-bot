@@ -1,7 +1,7 @@
 # Endorse the Skills of All People in Your Contacts
-A Python Selenium bot to automate endorsing the skills of people in Your contacts of  on LinkedIn
+A Python Selenium bot to automate endorsing the skills of people in Your contacts on LinkedIn
 
-<b>Do a good deed, endorse them all and all their skilss!</b>
+<b>Do a good deed, endorse them all and all their skills!</b>
 
 ## How To Use
 
