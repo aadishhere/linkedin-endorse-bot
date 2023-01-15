@@ -10,10 +10,6 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
   •  The email to login on LinkedIn `username`
   
   •  Your password `password`
-  
-  •  a person on LinkedIn in whose connections You are interested `search_query`
-  
-  •  Your custom message (without greating, the greating is included in the code!) `message.txt`
     
 ### Install Python:
 
