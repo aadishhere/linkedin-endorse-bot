@@ -23,7 +23,7 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
   •  https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
   
-### Start Connecting with People on LinkedIn!
+### Endorse Them All!
 
   •  double-click on `start.bat`
 
