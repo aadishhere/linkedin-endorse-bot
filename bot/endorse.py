@@ -34,7 +34,7 @@ driver = webdriver.Edge(service=my_service, options=options)
 action = ActionChains(driver)
 wait = WebDriverWait(driver,s)
 
-# to skip the contacts already endorsed, clean up the file from the contact links if You want to re-endorse their new skills
+# The file to skip the contacts already endorsed. Clean up the file from the contact links if You want to re-endorse their new skills.
 text_file = open("endorsed.txt", "r")
 #read the items line by line
 Already_endorsed = text_file.readlines()
