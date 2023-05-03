@@ -147,7 +147,7 @@ def hide_header():
 def main():
     global endorsed_array
     login()
-    time.sleep(25)
+    time.sleep(15)
     driver.get(connections_page)
     time.sleep(10)
     
