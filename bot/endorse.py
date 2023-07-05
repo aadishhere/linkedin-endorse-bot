@@ -96,7 +96,7 @@ def scroll_and_focus():
     try:
         endorse_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')))
         action.move_to_element(endorse_button).perform()
-        time.sleep(1)
+        time.sleep(3)
         return 0
     
     except TimeoutException:
