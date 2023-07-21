@@ -5,6 +5,9 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 ## How To Use
 
+Screen resolution and width is rather important when it comes to LinkedIn.
+<br> The script is tested on 1280px and 1366px screen width resolutions.  It is working!
+
 ### Change:
 
   •  The email to login on LinkedIn `username`
