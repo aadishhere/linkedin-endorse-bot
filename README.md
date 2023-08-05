@@ -18,6 +18,10 @@ Screen resolution and width is rather important when it comes to LinkedIn.
 
   •  https://www.python.org/downloads/
 
+### Install PIP If it Has Not been Installed With Python Automatically:
+
+  •  https://pip.pypa.io/en/stable/installation/
+
 ### Install Libraries (please open the command line interface):
 
   •  Selenium `pip install selenium`
