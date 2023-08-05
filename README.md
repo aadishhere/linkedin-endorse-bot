@@ -22,10 +22,6 @@ Screen resolution and width is rather important when it comes to LinkedIn.
 
   •  Selenium `pip install selenium`
 
-### Install `Edge-driver` into the bot's folder:
-
-  •  https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-  
 ### Endorse Them All!
 
   •  double-click on `start.bat`
