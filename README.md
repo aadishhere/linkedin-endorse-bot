@@ -3,12 +3,18 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
+<b>26 August 2023 major upgrade:</b> added `user agent`, `cookies` and `local storage` support to keep the login information from the last session and to reduce LinkedIn automation detection.
+
 ## How To Use
 
 Screen resolution and width is rather important when it comes to LinkedIn.
 <br> The script is tested on 1280px and 1366px screen width resolutions.  It is working!
 
 ### Change:
+  
+  •  Your browser information You usally use to browse LinkedIn (to reduce automation detection) `user_agent`
+   
+You can find your current browser's user-agent by searching ***"What's my user-agent?"*** in any search engine, it is just a string.
 
   •  The email to login on LinkedIn `username`
   
@@ -34,9 +40,9 @@ Screen resolution and width is rather important when it comes to LinkedIn.
 
   •  To be able to skip the endorsed connections, the links of people endorsed are stored in `endorsed.txt`
   
-The fresh version is always here: https://github.com/nakigoe/linkedin-bot
+The fresh version is always here: https://github.com/nakigoe/linkedin-endorse-bot
 <br> Please write if You would like programming lessons: nakigoetenshi@gmail.com
-<br> $25 per hour lessons
+<br> $60 per hour lessons
 
 <h2 style="margin: 0 auto" align="center">Put stars on GitHub and share!!!</h2>
 <br>
@@ -86,3 +92,9 @@ The fresh version is always here: https://github.com/nakigoe/linkedin-bot
       https://nakigoe.org/_SRC/logo-hot-bevel-300.jpg 300w"
     alt="NAKIGOE.ORG">
 </a></h1>
+
+<p style="margin: 0 auto" align="center">© NAKIGOE.ORG</p> 
+
+<p style="margin: 0 auto" align="center">All rights reserved and no permissions are granted.</p>
+
+<p style="margin: 0 auto" align="center">Please add stars to the repositories!</p>
