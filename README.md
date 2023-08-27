@@ -12,7 +12,7 @@ Screen resolution and width is rather important when it comes to LinkedIn.
 
 ### Change:
   
-  •  Your browser information You usally use to browse LinkedIn (to reduce automation detection) `user_agent`
+  •  Your browser information You usually use to browse LinkedIn (to reduce automation detection) `user_agent`
    
 You can find your current browser's user-agent by searching ***"What's my user-agent?"*** in any search engine, it is just a string.
 
