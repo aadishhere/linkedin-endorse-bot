@@ -86,16 +86,6 @@ def check_cookies_and_login():
     login()
     navigate_and_check(connections_page)
 
-def display_hidden_skills():
-    try:
-        hidden_skills = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//div[@class="artdeco-tabpanel artdeco-tabpanel--hidden ember-view"]')))
-        for hidden_skill in hidden_skills:
-            driver.execute_script('arguments[0].setAttribute("class", "artdeco-tabpanel ember-view")', hidden_skill)
-            driver.execute_script('arguments[0].removeAttribute("hidden")', hidden_skill)
-            wait.until(lambda d: 'artdeco-tabpanel--hidden' not in hidden_skill.get_attribute('class'))    
-    except:
-        return 1
-
 def show_more_skills():
         try:
             scroll_to_bottom()
