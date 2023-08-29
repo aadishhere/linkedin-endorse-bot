@@ -154,18 +154,38 @@ def hide_header():
     
     hide_messaging = wait.until(EC.presence_of_element_located((By.XPATH, '//aside[@id="msg-overlay"]')))
     driver.execute_script("arguments[0].style.display = 'none';", hide_messaging)
+       
+def harvest_and_sift_new_candidates(list_to_endorse):
+    #get first canditates displayed:
+    candidates = driver.find_elements(By.XPATH, '//a[@class="ember-view mn-connection-card__link"]')
+    
+    #sift the links to open against the 'Already_endorsed' list
+    for person in candidates:
+        raw_link = person.get_attribute('href')
+        separator = "?"
+        stripped_link = raw_link.split(separator, 1)[0]
+        skills_link = stripped_link + "details/skills/"
         
+        if skills_link in endorsed_array:
+            return 1 #exit if reached the endorsed contacts half
+        
+        # append the link to the unendorsed list
+        list_to_endorse.append(skills_link)
+    
+    return 0 # all stored successfully and there will be probably more candiatates after the scroll
+
 def main():
     global endorsed_array
     check_cookies_and_login()
     
-    reached_page_end= False
+    Page_links = [] #initial list for further endorsement
+    reached_page_end = False
     last_height = driver.execute_script("return document.body.scrollHeight")
-    
-    #expand the contacts list:
-    while not reached_page_end:
+
+    #expand the contacts list up to the recently endorsed (there is a limit of profiles to view per week, so you want to AVOID displaying all 30000 connections):
+    while not reached_page_end and not harvest_and_sift_new_candidates(Page_links) == 1:
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-        time.sleep(2)
+        time.sleep(3)
         new_height = driver.execute_script("return document.body.scrollHeight")
         if last_height == new_height:
             try:
@@ -178,21 +198,6 @@ def main():
                 break
         else:
             last_height = new_height
-            
-    Page_links = [] 
-    people = driver.find_elements(By.XPATH, '//a[@class="ember-view mn-connection-card__link"]')
-    
-    #sift the links to open against the 'Already_endorsed' list
-    for person in people:
-        raw_link = person.get_attribute('href')
-        separator = "?"
-        stripped_link = raw_link.split(separator, 1)[0]
-        skills_link = stripped_link + "details/skills/"
-        
-        if skills_link in endorsed_array:
-            continue
-        #append the link to open in the next for loop
-        Page_links.append(skills_link)
     
     #open unendorsed skills people links
     for page_link in Page_links:

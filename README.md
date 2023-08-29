@@ -3,7 +3,11 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
-<b>27 August 2023 major upgrade:</b> added `user agent`, `cookies` and `local storage` support to keep the login information from the last session and to reduce LinkedIn automation detection.
+<b>29 August 2023 major upgrades:</b> 
+
+  •  added `user agent`, `cookies` and `local storage` support to keep the login information from the last session and to reduce LinkedIn automation detection.
+
+  • improved logic of getting profiles who's skills to endorse: since there is a weekly limit of profiles to get in the search panel, the script searches only up to those still unendorsed (endorsed contacts are stored inside `endorsed.txt`, as always have been).
 
 ## How To Use
 
