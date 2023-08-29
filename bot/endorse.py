@@ -107,19 +107,15 @@ def show_more_skills():
         except:
             return 1
 
-def scroll_to_bottom(): 
-    reached_page_end= False
+def scroll_to_bottom(delay=2):
     last_height = driver.execute_script("return document.body.scrollHeight")
-    
-    #expand the skills list:
-    while not reached_page_end:
+    while True:
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-        time.sleep(2)
+        time.sleep(delay)
         new_height = driver.execute_script("return document.body.scrollHeight")
         if last_height == new_height:
-            reached_page_end = True
-        else:
-            last_height = new_height
+            break
+        last_height = new_height
              
 def scroll_and_focus():
     scroll_to_bottom()
@@ -133,17 +129,23 @@ def scroll_and_focus():
     except:
         if show_more_skills() == 1: return 1
                              
-def endorse():
-    for i in range(200): #there is a maximum of 50 skills, double for this button search algorythm     
+def endorse_skills():
+    processed_items = set()
+    while len(processed_items) < 50:
         try:
             endorse_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')))
-            action.move_to_element(endorse_button).perform()
-            time.sleep(0.5)
-            action.click(endorse_button).perform()
-            time.sleep(3)
-
-        except:
+            
+            if endorse_button.id in processed_items: continue
+            
+            click_and_wait(endorse_button, 0.1)
+            processed_items.add(endorse_button.id)
+            
+        except: # all the visible buttons have been clicked, now it is time to dig in for the hidden buttons:
             if scroll_and_focus() == 1: return 1
+        
+def click_and_wait(element, delay=3):
+    action.move_to_element(element).click().perform()
+    time.sleep(delay)
          
 def hide_header():
     hide_header = wait.until(EC.presence_of_element_located((By.XPATH, '//header[@id="global-nav"]')))
@@ -204,7 +206,7 @@ def main():
         driver.get(page_link) 
         time.sleep(20)
         hide_header()
-        endorse()
+        endorse_skills()
         endorsed_array.append(page_link)
         #append the line to the list file, save the file
         with open('linkedin-endorsed.txt', 'a') as a:
