@@ -2,6 +2,9 @@
 A Python Selenium bot to automate endorsing the skills of people in Your contacts on LinkedIn
 
 <b>Do a good deed, endorse them all and all their skills!</b>
+<b>6 September 2023:</b>
+
+faster cliking algorithm
 
 <b>30 August 2023 major upgrades:</b> 
 
