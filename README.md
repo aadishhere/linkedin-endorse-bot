@@ -9,7 +9,7 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
   • improved logic of getting profiles who's skills to endorse: since there is a weekly limit of profiles to get in the search panel, the script searches only up to those still unendorsed (endorsed contacts are stored inside `endorsed.txt`, as always have been).
 
-  • improved algorithm for clicking "Endorse" buttons, speed increased 10-20 times.
+  • improved algorithm for clicking "Endorse" buttons, speed increased 10&#8209;20 times.
 
 ## How To Use
 

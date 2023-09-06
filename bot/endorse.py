@@ -15,9 +15,14 @@ os.system("cls") #clear screen from previous sessions
 import time
 import json # for cookies
 
+from enum import Enum # that one is for You, my dear reader, code readability from NAKIGOE.ORG
+class Status(Enum):
+    SUCCESS = 0
+    FAILURE = 1
+    
 cookies_path = 'auth/cookies.json'
 local_storage_path = 'auth/local_storage.json'
-user_agent = "Super_Cool_User_Agent" # Replace with your desired user-agent string. You can find your current browser's user-agent by searching "What's my user-agent?" in a search engine
+user_agent = "My standard browser, my ordinary device" # Replace with your desired user-agent string. You can find your current browser's user-agent by searching "What's my user-agent?" in a search engine
 options = webdriver.EdgeOptions()
 options.use_chromium = True
 options.add_argument("start-maximized")
@@ -42,7 +47,7 @@ for line in Already_endorsed:
     endorsed_array.append(line.strip()) #remove garbage symbols
 
 username = "nakigoetenshi@gmail.com"
-password = "Super Mega Password"
+password = "Super Puper Mega Password"
 login_page = "https://www.linkedin.com/login"
 connections_page = "https://www.linkedin.com/mynetwork/invite-connect/connections/"
 
@@ -86,17 +91,6 @@ def check_cookies_and_login():
     login()
     navigate_and_check(connections_page)
 
-def show_more_skills():
-        try:
-            scroll_to_bottom()
-            expand_more = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(., "Show more results")]/parent::button')))
-            action.move_to_element(expand_more).perform()
-            action.click(expand_more).perform()
-            scroll_to_bottom()
-            return 0
-        except:
-            return 1
-
 def scroll_to_bottom(delay=2):
     last_height = driver.execute_script("return document.body.scrollHeight")
     while True:
@@ -106,7 +100,17 @@ def scroll_to_bottom(delay=2):
         if last_height == new_height:
             break
         last_height = new_height
-             
+
+def show_more_skills():
+        try:
+            scroll_to_bottom()
+            expand_more = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(., "Show more results")]/parent::button')))
+            click_and_wait(expand_more,0)
+            scroll_to_bottom()
+            return Status.SUCCESS
+        except:
+            return Status.FAILURE
+            
 def scroll_and_focus():
     scroll_to_bottom()
         
@@ -114,29 +118,29 @@ def scroll_and_focus():
         endorse_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')))
         action.move_to_element(endorse_button).perform()
         time.sleep(3)
-        return 0
+        return Status.SUCCESS
     
     except:
-        if show_more_skills() == 1: return 1
-                             
-def endorse_skills():
-    processed_items = set()
+        return show_more_skills()
+
+def endorse_skills():     
+    processed_items = set()    
     while len(processed_items) < 50:
         try:
             endorse_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')))
             
             if endorse_button.id in processed_items: continue
             
-            click_and_wait(endorse_button, 0.1)
+            click_and_wait(endorse_button, 0.1) # increase the time between pressing the "Engorse" buttons if necessary
             processed_items.add(endorse_button.id)
-            
-        except: # all the visible buttons have been clicked, now it is time to dig in for the hidden buttons:
-            if scroll_and_focus() == 1: return 1
+        except: # all the visible buttons have been clicked, now it is time to check and to dig in for the hidden buttons:
+            if len(processed_items) == 0: return # exit right now if there are no skills at all indicated in the profile!
+            if scroll_and_focus() == Status.FAILURE: return # no more unclicked buttons, exit
         
-def click_and_wait(element, delay=3):
+def click_and_wait(element, delay=1):
     action.move_to_element(element).click().perform()
     time.sleep(delay)
-         
+          
 def hide_header():
     hide_header = wait.until(EC.presence_of_element_located((By.XPATH, '//header[@id="global-nav"]')))
     driver.execute_script("arguments[0].style.display = 'none';", hide_header)
@@ -194,7 +198,7 @@ def main():
     #open unendorsed skills people links
     for page_link in Page_links:
         driver.get(page_link) 
-        time.sleep(20)
+        time.sleep(15)
         hide_header()
         endorse_skills()
         endorsed_array.append(page_link)
