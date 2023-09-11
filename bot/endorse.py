@@ -37,6 +37,10 @@ driver = webdriver.Edge(options=options)
 action = ActionChains(driver)
 wait = WebDriverWait(driver,s)
 
+def custom_wait(driver, timeout, condition_type, locator_tuple):
+    wait = WebDriverWait(driver, timeout)
+    return wait.until(condition_type(locator_tuple))
+
 # The file to skip the contacts already endorsed. Clean up the file from the contact links if You want to re-endorse their new skills.
 text_file = open("endorsed.txt", "r")
 #read the items line by line
@@ -154,7 +158,7 @@ def hide_header():
        
 def harvest_and_sift_new_candidates(list_to_endorse):
     #get first canditates displayed:
-    candidates = driver.find_elements(By.XPATH, '//a[@class="ember-view mn-connection-card__link"]')
+    candidates = custom_wait(driver, 15, EC.presence_of_all_elements_located, (By.XPATH, '//a[@class="ember-view mn-connection-card__link"]'))
     
     #sift the links to open against the 'Already_endorsed' list
     for person in candidates:
@@ -164,12 +168,12 @@ def harvest_and_sift_new_candidates(list_to_endorse):
         skills_link = stripped_link + "details/skills/"
         
         if skills_link in endorsed_array:
-            return 1 #exit if reached the endorsed contacts half
+            return Status.FAILURE #exit if reached the endorsed contacts half
         
         # append the link to the unendorsed list
         list_to_endorse.append(skills_link)
     
-    return 0 # all stored successfully and there will be probably more candiatates after the scroll
+    return Status.SUCCESS # all stored successfully and there will be probably more candiatates after the scroll
 
 def main():
     global endorsed_array
@@ -180,7 +184,7 @@ def main():
     last_height = driver.execute_script("return document.body.scrollHeight")
 
     #expand the contacts list up to the recently endorsed (there is a limit of profiles to view per week, so you want to AVOID displaying all 30000 connections):
-    while not reached_page_end and not harvest_and_sift_new_candidates(Page_links) == 1:
+    while not reached_page_end and not harvest_and_sift_new_candidates(Page_links) == Status.FAILURE:
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
         time.sleep(3)
         new_height = driver.execute_script("return document.body.scrollHeight")
