@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
+from random import *
 import os
 os.system("cls") #clear screen from previous sessions
 import time
@@ -131,7 +132,7 @@ def endorse_skills():
             
             if endorse_button.id in processed_items: continue
             
-            click_and_wait(endorse_button, 0.1) # increase the time between pressing the "Engorse" buttons if necessary
+            click_and_wait(endorse_button, random.uniform(0.2, 1)) # increase the random time between pressing the "Engorse" buttons if necessary
             processed_items.add(endorse_button.id)
         except: # all the visible buttons have been clicked, now it is time to check and to dig in for the hidden buttons:
             if len(processed_items) == 0: return # exit right now if there are no skills at all indicated in the profile!
