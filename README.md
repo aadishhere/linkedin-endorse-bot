@@ -7,7 +7,7 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
   •  endorsed users are stored in a database with the date of endorsement;
 
-  •  user profile is checked against the database, if his / her endorsement date is greater than specified in the `ENDORSE_PERIOD`, that profile is skipped to save time, traffic, and different weekly limits;
+  •  user profile is checked against the database, if his / her endorsement date is less than specified in the `ENDORSE_PERIOD`, that profile is skipped to save time, traffic, and different weekly limits;
 
   •  added an ability to open only the recent connections to save the weekly limits. For that reason added `ENDORSE_ALL = False / True` setting. Pick `ENDORSE_ALL = False` if You want to endorse only the new connections, and `ENDORSE_ALL = True` if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`
 
