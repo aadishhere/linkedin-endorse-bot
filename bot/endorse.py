@@ -10,10 +10,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
-from random import *
+import random
 import os
 os.system("cls") #clear screen from previous sessions
 import time
+import sqlite3
+from datetime import datetime, timedelta
 import json # for cookies
 
 from enum import Enum # that one is for You, my dear reader, code readability from NAKIGOE.ORG
@@ -21,14 +23,14 @@ class Status(Enum):
     SUCCESS = 0
     FAILURE = 1
     
-cookies_path = 'auth/cookies.json'
-local_storage_path = 'auth/local_storage.json'
-user_agent = "My standard browser, my ordinary device" # Replace with your desired user-agent string. You can find your current browser's user-agent by searching "What's my user-agent?" in a search engine
+COOKIES_PATH = 'auth/cookies.json'
+LOCAL_STORAGE_PATH = 'auth/local_storage.json'
+USER_AGENT = "My Standard Browser and My Standard Device" # Replace with your desired user-agent string. You can find your current browser's user-agent by searching "What's my user-agent?" in a search engine
 options = webdriver.EdgeOptions()
 options.use_chromium = True
 options.add_argument("start-maximized")
 options.page_load_strategy = 'eager' #do not wait for images to load
-options.add_argument(f"user-agent={user_agent}")
+options.add_argument(f"user-agent={USER_AGENT}")
 options.add_experimental_option("detach", True)
 
 s = 20 #time to wait for a single component on the page to appear, in seconds; increase it if you get server-side errors «try again later»
@@ -41,20 +43,12 @@ def custom_wait(driver, timeout, condition_type, locator_tuple):
     wait = WebDriverWait(driver, timeout)
     return wait.until(condition_type(locator_tuple))
 
-# The file to skip the contacts already endorsed. Clean up the file from the contact links if You want to re-endorse their new skills.
-text_file = open("endorsed.txt", "r")
-#read the items line by line
-Already_endorsed = text_file.readlines()
-text_file.close()
-
-endorsed_array = []
-for line in Already_endorsed:
-    endorsed_array.append(line.strip()) #remove garbage symbols
-
-username = "nakigoetenshi@gmail.com"
-password = "Super Puper Mega Password"
-login_page = "https://www.linkedin.com/login"
-connections_page = "https://www.linkedin.com/mynetwork/invite-connect/connections/"
+USERNAME = "nakigoetenshi@gmail.com"
+PASSWORD = "Super Mega Password"
+LOGIN_PAGE = "https://www.linkedin.com/login"
+CONNECTIONS_PAGE = "https://www.linkedin.com/mynetwork/invite-connect/connections/"
+ENDORSE_PERIOD = 90  # pause for endorsed users in days, that is, do not open users endorsed recently
+ENDORSE_ALL = False # True burns the weekly search limit. Set to True to load ALL connections (but endorse only those whose date > ENDORSED_PERIOD)
 
 def load_data_from_json(path): return json.load(open(path, 'r'))
 def save_data_to_json(data, path): os.makedirs(os.path.dirname(path), exist_ok=True); json.dump(data, open(path, 'w'))
@@ -68,33 +62,33 @@ def navigate_and_check(probe_page):
     driver.get(probe_page)
     time.sleep(15)
     if success(): # return True if you are loggged in successfully independent of saving new cookies
-        save_data_to_json(driver.get_cookies(), cookies_path)
-        save_data_to_json({key: driver.execute_script(f"return window.localStorage.getItem('{key}');") for key in driver.execute_script("return Object.keys(window.localStorage);")}, local_storage_path)
+        save_data_to_json(driver.get_cookies(), COOKIES_PATH)
+        save_data_to_json({key: driver.execute_script(f"return window.localStorage.getItem('{key}');") for key in driver.execute_script("return Object.keys(window.localStorage);")}, LOCAL_STORAGE_PATH)
         return True
     else: 
         return False
    
 def login():
-    wait.until(EC.element_to_be_clickable((By.XPATH, '//input[@id="username"]'))).send_keys(username)
-    wait.until(EC.element_to_be_clickable((By.XPATH, '//input[@id="password"]'))).send_keys(password)
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//input[@id="username"]'))).send_keys(USERNAME)
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//input[@id="password"]'))).send_keys(PASSWORD)
     action.click(wait.until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(), "Sign in")]')))).perform()
     time.sleep(15)
     
 def check_cookies_and_login():
-    driver.get(login_page) # you have to open some page first before trying to load cookies!
+    driver.get(LOGIN_PAGE) # you have to open some page first before trying to load cookies!
     time.sleep(3)
     
-    if os.path.exists(cookies_path) and os.path.exists(local_storage_path):
-        add_cookies(load_data_from_json(cookies_path))
-        add_local_storage(load_data_from_json(local_storage_path))
+    if os.path.exists(COOKIES_PATH) and os.path.exists(LOCAL_STORAGE_PATH):
+        add_cookies(load_data_from_json(COOKIES_PATH))
+        add_local_storage(load_data_from_json(LOCAL_STORAGE_PATH))
         
-        if navigate_and_check(connections_page):
+        if navigate_and_check(CONNECTIONS_PAGE):
             return # it is OK, you are logged in
     
-    driver.get(login_page)
+    driver.get(LOGIN_PAGE)
     time.sleep(3)
     login()
-    navigate_and_check(connections_page)
+    navigate_and_check(CONNECTIONS_PAGE)
 
 def scroll_to_bottom(delay=2):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -106,10 +100,63 @@ def scroll_to_bottom(delay=2):
             break
         last_height = new_height
 
+# Create table to store URLs of LinkedIn user pages and dates of Endorsing their skills
+def create_table():
+    conn = sqlite3.connect('users-and-dates.db')
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS endorsed_users (
+        linkedin_page_url TEXT PRIMARY KEY,
+        date_endorsed TEXT
+    )
+    """)
+    conn.commit()
+    conn.close()
+create_table()
+
+def check_and_endorse(driver, user_skills_url):
+    linkedin_page_url = user_skills_url
+    conn = sqlite3.connect('users-and-dates.db')
+    cursor = conn.cursor()
+
+    # Query for the user by linkedin_page_url
+    cursor.execute("SELECT date_endorsed FROM endorsed_users WHERE linkedin_page_url = ?", (linkedin_page_url,))
+    result = cursor.fetchone()
+
+    if result:
+        date_endorsed_str = result[0]
+        if date_endorsed_str:
+            date_endorsed = datetime.strptime(date_endorsed_str, '%Y-%m-%d')
+            if datetime.now() - date_endorsed > timedelta(days=ENDORSE_PERIOD):
+                if endorse_skills(driver, user_skills_url) == Status.SUCCESS: # if there are no more skills to Endorse
+                    update_date_endorsed(linkedin_page_url)
+        else:
+            if endorse_skills(driver, user_skills_url) == Status.SUCCESS: # if there are no more skills to Endorse
+                update_date_endorsed(linkedin_page_url)
+    else:
+        if endorse_skills(driver, user_skills_url) == Status.SUCCESS: # if there are no more skills to Endorse
+            insert_user(linkedin_page_url)
+
+    conn.close()
+
+def insert_user(linkedin_page_url):
+    conn = sqlite3.connect('users-and-dates.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO endorsed_users (linkedin_page_url, date_endorsed) VALUES (?, ?)", (linkedin_page_url, datetime.now().strftime('%Y-%m-%d')))
+    conn.commit()
+    conn.close()
+
+def update_date_endorsed(linkedin_page_url):
+    conn = sqlite3.connect('users-and-dates.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE endorsed_users SET date_endorsed = ? WHERE linkedin_page_url = ?", (datetime.now().strftime('%Y-%m-%d'), linkedin_page_url))
+    conn.commit()
+    conn.close()
+
 def show_more_skills():
         try:
             scroll_to_bottom()
-            expand_more = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(., "Show more results")]/parent::button')))
+            expand_more = custom_wait(driver, 15, EC.element_to_be_clickable, (By.XPATH, '//span[contains(., "Show more results")]/parent::button'))
             click_and_wait(expand_more,0)
             scroll_to_bottom()
             return Status.SUCCESS
@@ -120,27 +167,47 @@ def scroll_and_focus():
     scroll_to_bottom()
         
     try:
-        endorse_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')))
+        endorse_button = custom_wait(driver, 15, EC.element_to_be_clickable, (By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button'))
         action.move_to_element(endorse_button).perform()
-        time.sleep(3)
         return Status.SUCCESS
     
     except:
         return show_more_skills()
 
-def endorse_skills():     
+def endorse_skills(driver, page_link):
+    driver.get(page_link) 
+    time.sleep(15)
+    hide_header()
     processed_items = set()    
     while len(processed_items) < 50:
         try:
-            endorse_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')))
+            endorse_button = custom_wait(driver, 30, EC.element_to_be_clickable, (By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')) # this element is critical, so the wait time is set to 30 seconds for testing purposes
             
             if endorse_button.id in processed_items: continue
+            click_and_wait(endorse_button, random.uniform(0.1, 0.25)) # increase the random time (in seconds) between pressing the "Engorse" buttons if necessary
             
-            click_and_wait(endorse_button, random.uniform(0.2, 1)) # increase the random time between pressing the "Engorse" buttons if necessary
+            # Wait for the button text to change to "Endorsed"
+            while True:
+                try:
+                    custom_wait(driver, 10, EC.text_to_be_present_in_element, ((By.XPATH, '//button[contains(@id, "' + endorse_button.id + '")]/span'), "Endorsed"))
+                    break
+                except:
+                    print("Waiting for 'Endorsed' text in the button...")
+                    continue
+                
             processed_items.add(endorse_button.id)
+        
         except: # all the visible buttons have been clicked, now it is time to check and to dig in for the hidden buttons:
-            if len(processed_items) == 0: return # exit right now if there are no skills at all indicated in the profile!
-            if scroll_and_focus() == Status.FAILURE: return # no more unclicked buttons, exit
+            
+            try:
+                endorsed_indicator = custom_wait(driver, 5, EC.presence_of_element_located, (By.XPATH, '//span[(contains(., "Endorsed"))]'))
+            except:
+                if len(processed_items) == 0: return Status.SUCCESS # exit right now if there are no skills at all indicated in the profile and save the URL in the calling function!
+            
+            if scroll_and_focus() == Status.FAILURE: return Status.SUCCESS # no more unclicked buttons, exit and save URL in the calling function
+    
+    time.sleep(3) # for the last endorsement to reach the server              
+    return Status.SUCCESS
         
 def click_and_wait(element, delay=1):
     action.move_to_element(element).click().perform()
@@ -155,20 +222,41 @@ def hide_header():
     
     hide_messaging = wait.until(EC.presence_of_element_located((By.XPATH, '//aside[@id="msg-overlay"]')))
     driver.execute_script("arguments[0].style.display = 'none';", hide_messaging)
-       
+
+def check_user(user_skills_url): 
+    linkedin_page_url = user_skills_url
+    conn = sqlite3.connect('users-and-dates.db')
+    cursor = conn.cursor()
+
+    # Query for the user by linkedin_page_url
+    cursor.execute("SELECT date_endorsed FROM endorsed_users WHERE linkedin_page_url = ?", (linkedin_page_url,))
+    result = cursor.fetchone()
+
+    if result:
+        date_endorsed_str = result[0]
+        if date_endorsed_str:
+            date_endorsed = datetime.strptime(date_endorsed_str, '%Y-%m-%d')
+            if datetime.now() - date_endorsed < timedelta(days=ENDORSE_PERIOD):
+                conn.close()
+                return Status.FAILURE # that is, stop checking for other users in the contacts page at this user and start endorsing everyone in the Page_links list
+        else:
+            conn.close()
+            return Status.SUCCESS # continue loading more users for further endorsement into the Page_links
+    else:
+        conn.close()
+        return Status.SUCCESS # continue loading more users for further endorsement into the Page_links
+
 def harvest_and_sift_new_candidates(list_to_endorse):
     #get first canditates displayed:
     candidates = custom_wait(driver, 15, EC.presence_of_all_elements_located, (By.XPATH, '//a[@class="ember-view mn-connection-card__link"]'))
     
     #sift the links to open against the 'Already_endorsed' list
     for person in candidates:
-        raw_link = person.get_attribute('href')
-        separator = "?"
-        stripped_link = raw_link.split(separator, 1)[0]
-        skills_link = stripped_link + "details/skills/"
+        user_link = person.get_attribute('href')
+        skills_link = user_link + "details/skills/"
         
-        if skills_link in endorsed_array:
-            return Status.FAILURE #exit if reached the endorsed contacts half
+        if not ENDORSE_ALL: # that is, check only the most recent users in the block below and exit if found the first already endorsed user on the contacts page (they are listed on LinkedIn in the chronological order):
+            if check_user(skills_link) == Status.FAILURE: return Status.FAILURE
         
         # append the link to the unendorsed list
         list_to_endorse.append(skills_link)
@@ -176,7 +264,6 @@ def harvest_and_sift_new_candidates(list_to_endorse):
     return Status.SUCCESS # all stored successfully and there will be probably more candiatates after the scroll
 
 def main():
-    global endorsed_array
     check_cookies_and_login()
     
     Page_links = [] #initial list for further endorsement
@@ -200,16 +287,14 @@ def main():
         else:
             last_height = new_height
     
-    #open unendorsed skills people links
+    Page_links.reverse() # Since Your contacts on LinkedIn are sorted by recency, start from the bottom of the unendorsed contacts to endorse in chronological order. Important, if You want to use ENDORSE_ALL = False in the settings and to avoid loading thousands of contacts with ENDORSE_ALL = True (burns your weekly limit of contacts to search).
+    
     for page_link in Page_links:
-        driver.get(page_link) 
-        time.sleep(15)
-        hide_header()
-        endorse_skills()
-        endorsed_array.append(page_link)
-        #append the line to the list file, save the file
-        with open('linkedin-endorsed.txt', 'a') as a:
-            a.writelines(page_link + "\n")
+        check_and_endorse(driver, page_link)
+        
+    # this is for debug, to check endorsements of a single page. Wait times are usually the main culprit:
+    # page_link = "https://www.linkedin.com/in/christosberetas/details/skills/"
+    # check_and_endorse(driver, page_link)
 
     os.system("cls") #clear screen from unnecessary logs since the operation has completed successfully
     print("All Your connections are endorsed! \n \nSincerely Yours, \nNAKIGOE.ORG\n")

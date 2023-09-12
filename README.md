@@ -3,9 +3,15 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
-<b>6 September 2023 algorithm upgrade:</b>
+<b>12 September 2023 major upgrade:</b>
 
-exits the user profile fast if no skills are indicated
+  •  endorsed users are stored in a database with the date of endorsement;
+
+  •  user profile is checked against the database, if his / her endorsement date is greater than specified in the `ENDORSE_PERIOD`, that profile is skipped to save time, traffic, and different weekly limits;
+
+  •  added an ability to open only the recent connections to save the weekly limits. For that reason added `ENDORSE_ALL = False / True` setting. Pick `ENDORSE_ALL = False` if You want to endorse only the new connections, and `ENDORSE_ALL = True` if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`
+
+  •  improved clicking algorithm that accounts for a temporary loss of the Internet connection. Previousely, on a very rare occasion when the server was unresponsive or a connection was lost, if you saw the program hang during the clicking, You had to click the nearest 'Endorse' button manually, and automated clicking continued. Now the script should work without manual clicking even if the Internet connection is temporarily lost.
 
 <b>30 August 2023 major upgrades:</b> 
 
@@ -22,13 +28,17 @@ Screen resolution and width is rather important when it comes to LinkedIn.
 
 ### Change:
   
-  •  Your browser information You usually use to browse LinkedIn (to reduce automation detection) `user_agent`
+  •  Your browser information You usually use to browse LinkedIn (to reduce automation detection) `USER_AGENT`
    
 You can find your current browser's user-agent by searching ***"What's my user-agent?"*** in any search engine, it is just a string.
 
-  •  The email to login on LinkedIn `username`
+  •  The email to login on LinkedIn `USERNAME`
   
-  •  Your password `password`
+  •  Your password `PASSWORD`
+
+  •  When would You like to revisit the endorsed accounts `ENDORSE_PERIOD`, (people add new skills every so often, 180 days may be effective).
+
+  •  If You want to <b>revisit old connections</b> and endorse them agains, that is, if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`, set 'ENDORSE_ALL = True'. If you have more than 1000 connections, use it only on a rare occasion, since 'ENDORSE_ALL = True' burns through Your weekly LinkedIn user search limit rather fast. If You have more than 200 connections, leave 'ENDORSE_ALL = False' to open only the recent connections for Your regular recent contacts endorsement procedure.
     
 ### Install Python:
 
