@@ -3,7 +3,11 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
-<b>12 September 2023 major upgrade:</b>
+<b>13 September 2023 major upgrades:</b>
+
+  •  correct successful login indicator
+
+<b>12 September 2023 major upgrades:</b>
 
   •  endorsed users are stored in a database with the date of endorsement;
 
@@ -11,7 +15,7 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
   •  added an ability to open only the recent connections to save the weekly limits. For that reason added `ENDORSE_ALL = False / True` setting. Pick `ENDORSE_ALL = False` if You want to endorse only the new connections, and `ENDORSE_ALL = True` if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`
 
-  •  improved clicking algorithm that accounts for a temporary loss of the Internet connection. Previousely, on a very rare occasion when the server was unresponsive or a connection was lost, if you saw the program hang during the clicking, You had to click the nearest 'Endorse' button manually, and automated clicking continued. Now the script should work without manual clicking even if the Internet connection is temporarily lost.
+  •  improved clicking algorithm that accounts for a temporary loss of the Internet connection. Previousely, on a very rare occasion when the server was unresponsive or a connection was lost, if you saw the program hang during the clicking, You had to click the nearest 'Endorse' button manually, and automated clicking continued. Now the script should work without manual clicking even if the Internet connection is temporarily lost
 
 <b>30 August 2023 major upgrades:</b> 
 
