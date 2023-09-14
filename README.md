@@ -3,7 +3,11 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
-<b>13 September 2023 major upgrades:</b>
+<b>14 September 2023 major upgrade:</b>
+
+  •  improved waiting algorithm for button text to change into `Endorsed` before pressing the next `Endorse` button
+
+<b>13 September 2023 major upgrade:</b>
 
   •  correct successful login indicator
 
