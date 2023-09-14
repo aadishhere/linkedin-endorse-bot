@@ -182,11 +182,20 @@ def scroll_and_focus():
 def eternal_wait_for_text_to_change(element, target_text):
     os.system("cls") # clear screen from garbage
     print(f'Waiting for the button with an id={element.get_attribute("id")} text to change into "Endorsed"')
+    last_click_time = 0  # To keep track of when the last click occurred
     while True:
         current_text = element.text.strip()
+        last_click_time = 0  # To keep track of when the last click occurred
         if current_text == target_text:
             return Status.SUCCESS
-        time.sleep(0.1)  # Adjust the sleep interval as needed
+        
+        # Click the element again if 1 second has passed since the last click (in case of connection or server fault)
+        current_time = time.time()
+        if current_time - last_click_time >= 1:
+            element.click()
+            last_click_time = current_time  # Update the last click time
+            
+        time.sleep(0.1)  # Adjust the sleep interval as needed, the period after which to check the button text again
 
 def endorse_skills(driver, page_link):
     driver.get(page_link) 
