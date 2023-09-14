@@ -179,11 +179,77 @@ def scroll_and_focus():
     except:
         return show_more_skills()
 
+def eternal_wait(driver, timeout, condition_type, locator_tuple): # timeout is symbolic here since it is eternal loop
+    while True:
+        try:
+            element = custom_wait(driver, timeout, condition_type, locator_tuple)
+            return element
+        except:
+            print(f"\n\nWaiting for the element(s) {locator_tuple} to become {condition_type}…")
+            time.sleep(1) # just to display a message
+            continue
+
+def js_click(driver, element): # 1 event
+    try:
+        # Scroll the element into view and dispatch a click event using JavaScript
+        driver.execute_script("""
+            arguments[0].scrollIntoView();
+            var event = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            arguments[0].dispatchEvent(event);
+        """, element)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def god_click(driver, element): # 3 events
+    try:
+        if element.is_displayed() and element.is_enabled():
+            element_id = element.get_attribute("id")
+            
+            driver.execute_script(f"""
+                arguments[0].scrollIntoView();
+                var element = document.getElementById('{element_id}');
+                ['mousedown', 'mouseup', 'click'].forEach(function(evtType) {{
+                    var event = new MouseEvent(evtType, {{
+                        'view': window,
+                        'bubbles': true,
+                        'cancelable': true
+                    }});
+                    element.dispatchEvent(event);
+                }});
+            """, element)
+        else:
+            print("Element is not visible or not enabled for clicking.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        
+def ultimate_click(driver, element): # JS and Selenium click
+    try:
+        if element.is_displayed() and element.is_enabled():
+            driver.execute_script(f"""
+                arguments[0].scrollIntoView();
+                var event = new MouseEvent('click', {{
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                }});
+                arguments[0].dispatchEvent(event);
+            """, element)
+            action.click(element).perform()
+        else:
+            print("Element is not visible or not enabled for clicking.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 def eternal_wait_for_text_to_change(element, target_text):
-    os.system("cls") # clear screen from garbage
     print(f'Waiting for the button with an id={element.get_attribute("id")} text to change into "Endorsed"')
     last_click_time = 0  # To keep track of when the last click occurred
     while True:
+        # reload the element to avoid reading from cache:
+        element = custom_wait(driver, 10, EC.element_to_be_clickable, (By.ID, element.get_attribute("id")))
         current_text = element.text.strip()
         last_click_time = 0  # To keep track of when the last click occurred
         if current_text == target_text:
@@ -191,8 +257,8 @@ def eternal_wait_for_text_to_change(element, target_text):
         
         # Click the element again if 1 second has passed since the last click (in case of connection or server fault)
         current_time = time.time()
-        if current_time - last_click_time >= 1:
-            element.click()
+        if current_time - last_click_time >= 3:
+            ultimate_click(driver, element)
             last_click_time = current_time  # Update the last click time
             
         time.sleep(0.1)  # Adjust the sleep interval as needed, the period after which to check the button text again
@@ -202,12 +268,14 @@ def endorse_skills(driver, page_link):
     time.sleep(15)
     hide_header()
     processed_items = set()    
-    while len(processed_items) < 50:
+    while len(processed_items) <= 51: # eternal loop to get all the clicks to the server and bypass anti-bot buttons behaviour (return to the "Endorse" state). The cycle stops only if there are REALLY no more unendorsed buttons, the key stopper is scroll_and_focus()
         try:
             endorse_button = custom_wait(driver, 30, EC.element_to_be_clickable, (By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')) # this element is critical, so the wait time is set to 30 seconds for testing purposes
             
-            if endorse_button.id in processed_items: continue
-            click_and_wait(endorse_button, random.uniform(0.1, 0.25)) # increase the random time (in seconds) between pressing the "Engorse" buttons if necessary
+            if endorse_button.id in processed_items: time.sleep(random.uniform(0.1, 0.25)); processed_items.remove(endorse_button.id)
+            # click_and_wait(endorse_button, random.uniform(0.1, 0.25)) # increase the random time (in seconds) between pressing the "Engorse" buttons if necessary
+            
+            god_click(driver, endorse_button) # anti-bot measures are a killer, use your creativity here
             
             # Wait for the button text to change to "Endorsed"
             eternal_wait_for_text_to_change(endorse_button, "Endorsed")
@@ -222,8 +290,7 @@ def endorse_skills(driver, page_link):
                 if len(processed_items) == 0: return Status.SUCCESS # exit right now if there are no skills at all indicated in the profile and save the URL in the calling function!
             
             if scroll_and_focus() == Status.FAILURE: return Status.SUCCESS # no more unclicked buttons, exit and save URL in the calling function
-    
-    time.sleep(3) # for the last endorsement to reach the server              
+      
     return Status.SUCCESS
         
 def click_and_wait(element, delay=1):
@@ -310,7 +377,7 @@ def main():
         check_and_endorse(driver, page_link)
         
     # this is for debug, to check endorsements of a single page. Wait times are usually the main culprit:
-    # page_link = "https://www.linkedin.com/in/christosberetas/details/skills/"
+    # page_link = "https://www.linkedin.com/in/noorzaman/details/skills/"
     # check_and_endorse(driver, page_link)
 
     os.system("cls") #clear screen from unnecessary logs since the operation has completed successfully
