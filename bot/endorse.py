@@ -179,6 +179,15 @@ def scroll_and_focus():
     except:
         return show_more_skills()
 
+def eternal_wait_for_text_to_change(element, target_text):
+    os.system("cls") # clear screen from garbage
+    print(f'Waiting for the button with an id={element.get_attribute("id")} text to change into "Endorsed"')
+    while True:
+        current_text = element.text.strip()
+        if current_text == target_text:
+            return Status.SUCCESS
+        time.sleep(0.1)  # Adjust the sleep interval as needed
+
 def endorse_skills(driver, page_link):
     driver.get(page_link) 
     time.sleep(15)
@@ -192,13 +201,7 @@ def endorse_skills(driver, page_link):
             click_and_wait(endorse_button, random.uniform(0.1, 0.25)) # increase the random time (in seconds) between pressing the "Engorse" buttons if necessary
             
             # Wait for the button text to change to "Endorsed"
-            while True:
-                try:
-                    custom_wait(driver, 10, EC.text_to_be_present_in_element, ((By.XPATH, '//button[contains(@id, "' + endorse_button.id + '")]/span'), "Endorsed"))
-                    break
-                except:
-                    print("Waiting for 'Endorsed' text in the button...")
-                    continue
+            eternal_wait_for_text_to_change(endorse_button, "Endorsed")
                 
             processed_items.add(endorse_button.id)
         
