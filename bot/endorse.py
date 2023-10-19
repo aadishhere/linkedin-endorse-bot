@@ -262,40 +262,6 @@ def eternal_wait_for_text_to_change(element, target_text):
             last_click_time = current_time  # Update the last click time
             
         time.sleep(0.1)  # Adjust the sleep interval as needed, the period after which to check the button text again
-
-def endorse_skills(driver, page_link):
-    driver.get(page_link) 
-    time.sleep(15)
-    hide_header()
-    processed_items = set()    
-    while len(processed_items) <= 51: # eternal loop to get all the clicks to the server and bypass anti-bot buttons behaviour (return to the "Endorse" state). The cycle stops only if there are REALLY no more unendorsed buttons, the key stopper is scroll_and_focus()
-        try:
-            endorse_button = custom_wait(driver, 30, EC.element_to_be_clickable, (By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')) # this element is critical, so the wait time is set to 30 seconds for testing purposes
-            
-            if endorse_button.id in processed_items: time.sleep(random.uniform(0.1, 0.25)); processed_items.remove(endorse_button.id)
-            # click_and_wait(endorse_button, random.uniform(0.1, 0.25)) # increase the random time (in seconds) between pressing the "Engorse" buttons if necessary
-            
-            god_click(driver, endorse_button) # anti-bot measures are a killer, use your creativity here
-            
-            # Wait for the button text to change to "Endorsed"
-            eternal_wait_for_text_to_change(endorse_button, "Endorsed")
-                
-            processed_items.add(endorse_button.id)
-        
-        except: # all the visible buttons have been clicked, now it is time to check and to dig in for the hidden buttons:
-            
-            try:
-                endorsed_indicator = custom_wait(driver, 5, EC.presence_of_element_located, (By.XPATH, '//span[(contains(., "Endorsed"))]'))
-            except:
-                if len(processed_items) == 0: return Status.SUCCESS # exit right now if there are no skills at all indicated in the profile and save the URL in the calling function!
-            
-            if scroll_and_focus() == Status.FAILURE: return Status.SUCCESS # no more unclicked buttons, exit and save URL in the calling function
-      
-    return Status.SUCCESS
-        
-def click_and_wait(element, delay=1):
-    action.move_to_element(element).click().perform()
-    time.sleep(delay)
           
 def hide_header():
     hide_header = wait.until(EC.presence_of_element_located((By.XPATH, '//header[@id="global-nav"]')))
@@ -306,6 +272,67 @@ def hide_header():
     
     hide_messaging = wait.until(EC.presence_of_element_located((By.XPATH, '//aside[@id="msg-overlay"]')))
     driver.execute_script("arguments[0].style.display = 'none';", hide_messaging)
+    
+def endorse_skills(driver, page_link):
+    driver.get(page_link) 
+    time.sleep(15)
+    scroll_to_bottom() # ensures the page has loaded
+    show_more_skills() # works better if already at bottom, shows all skills
+    hide_header()
+    while True:
+        processed_items = set()   
+        glitchy_buttons = set()
+        while len(processed_items) <= 51: # eternal loop to get all the clicks to the server and bypass anti-bot buttons behaviour (return to the "Endorse" state). The cycle stops only if there are REALLY no more unendorsed buttons, the key stopper is scroll_and_focus()
+            try:
+                # Get all buttons that could be clicked
+                endorsable_buttons = custom_wait(driver, 30, EC.presence_of_all_elements_located, (By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button'))
+                
+                # Remove buttons already clicked
+                # endorsable_buttons = [btn for btn in endorsable_buttons if btn.id not in processed_items]
+                
+                # endorse_button = endorsable_buttons[0]
+                
+                # endorse_button = custom_wait(driver, 30, EC.element_to_be_clickable, (By.XPATH, '//span[(contains(., "Endorsed"))=false and (contains(., "endorsement"))=false and contains(., "Endorse")]/parent::button')) # this element is critical, so the wait time is set to 30 seconds for testing purposes
+                
+                # if endorse_button.id in processed_items: 
+                #     glitchy_buttons.add(endorse_button.id)
+                    
+                # click_and_wait(endorse_button, random.uniform(0.1, 0.25)) # increase the random time (in seconds) between pressing the "Engorse" buttons if necessary
+                
+                for endorse_button in endorsable_buttons:
+                    if endorse_button.id in processed_items: glitchy_buttons.add(endorse_button.id); continue
+                    god_click(driver, endorse_button) # anti-bot measures are a killer, use your creativity here
+                    
+                    # Wait for the button text to change to "Endorsed"
+                    # eternal_wait_for_text_to_change(endorse_button, "Endorsed")
+                    
+                    time.sleep(random.uniform(0.1, 0.25)) # give time for the click to get to the server
+                    
+                    processed_items.add(endorse_button.id)
+            
+            except: # all the visible buttons have been clicked, now it is time to check and to dig in for the hidden buttons:           
+                try:
+                    endorsed_indicator = custom_wait(driver, 5, EC.presence_of_element_located, (By.XPATH, '//span[(contains(., "Endorsed"))]'))
+                except:
+                    if len(processed_items) == 0: 
+                        if len(glitchy_buttons) == 0:
+                            return Status.SUCCESS # exit right now if there are no skills at all indicated in the profile and save the URL in the calling function!
+                        else:
+                            break # try once more to click the glitchy buttons, resets the buttons storage
+                
+                if scroll_and_focus() == Status.FAILURE: 
+                    if len(glitchy_buttons) == 0:
+                        return Status.SUCCESS # no more unclicked buttons, exit and save URL in the calling function
+                    else:
+                        break  # try once more to click the glitchy buttons, resets the buttons storage
+        
+        if len(glitchy_buttons) == 0: break
+        
+    return Status.SUCCESS
+        
+def click_and_wait(element, delay=1):
+    action.move_to_element(element).click().perform()
+    time.sleep(delay)
 
 def check_user(user_skills_url): 
     linkedin_page_url = user_skills_url

@@ -1,73 +1,84 @@
 # Endorse the Skills of All People in Your Contacts
+
 A Python Selenium bot to automate endorsing the skills of people in Your contacts on LinkedIn
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
-<b>14 September 2023 major upgrade:</b>
+<b>19 October 2023 major upgrade:</b>
 
-  •  improved waiting algorithm for button text to change into `Endorsed` before pressing the next `Endorse` button
+• added `god_click()` (a complex JS click with 3 events) function, clicks like "The&nbsp;Finger&nbsp;of&nbsp;God";
+
+• introduced complex click checking mechanizm `glitchy_button` in case the Internet connection was lost, the additional external endless cycle revisits `glitchy_button`s;
+
+• clicks all the "Endorse" buttons in an instant, speed increased 50 times compared to the first upload!;
 
 <b>13 September 2023 major upgrade:</b>
 
-  •  correct successful login indicator
+• correct successful login indicator
 
 <b>12 September 2023 major upgrades:</b>
 
-  •  endorsed users are stored in a database with the date of endorsement;
+• endorsed users are stored in a database with the date of endorsement;
 
-  •  user profile is checked against the database, if his / her endorsement date is less than specified in the `ENDORSE_PERIOD`, that profile is skipped to save time, traffic, and different weekly limits;
+• user profile is checked against the database, if his / her endorsement date is less than specified in the `ENDORSE_PERIOD`, that profile is skipped to save time, traffic, and different weekly limits;
 
-  •  added an ability to open only the recent connections to save the weekly limits. For that reason added `ENDORSE_ALL = False / True` setting. Pick `ENDORSE_ALL = False` if You want to endorse only the new connections, and `ENDORSE_ALL = True` if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`
+• added an ability to open only the recent connections to save the weekly limits. For that reason added `ENDORSE_ALL = False / True` setting. Pick `ENDORSE_ALL = False` if You want to endorse only the new connections, and `ENDORSE_ALL = True` if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`
 
-  •  improved clicking algorithm that accounts for a temporary loss of the Internet connection. Previousely, on a very rare occasion when the server was unresponsive or a connection was lost, if you saw the program hang during the clicking, You had to click the nearest 'Endorse' button manually, and automated clicking continued. Now the script should work without manual clicking even if the Internet connection is temporarily lost
+• improved clicking algorithm that accounts for a temporary loss of the Internet connection. Previousely, on a very rare occasion when the server was unresponsive or a connection was lost, if you saw the program hang during the clicking, You had to click the nearest 'Endorse' button manually, and automated clicking continued. Now the script should work without manual clicking even if the Internet connection is temporarily lost
 
-<b>30 August 2023 major upgrades:</b> 
+<b>30 August 2023 major upgrades:</b>
 
-  •  added `user agent`, `cookies` and `local storage` support to keep the login information from the last session and to reduce LinkedIn automation detection.
+• added `user agent`, `cookies` and `local storage` support to keep the login information from the last session and to reduce LinkedIn automation detection.
 
-  • improved logic of getting profiles who's skills to endorse: since there is a weekly limit of profiles to get in the search panel, the script searches only up to those still unendorsed if You keep the settning `ENDORSE_ALL = False`
+• improved logic of getting profiles who's skills to endorse: since there is a weekly limit of profiles to get in the search panel, the script searches only up to those still unendorsed if You keep the settning `ENDORSE_ALL = False`
 
-  • improved algorithm for clicking "Endorse" buttons, speed increased 10&#8209;20 times.
+• improved algorithm for clicking "Endorse" buttons, speed increased 10&#8209;20 times.
 
 ## How To Use
 
+The script has been written and tested many times for use with the **_Microsoft Edge_** browser. Sometimes installing the **LATEST VERSION** of **_Microsoft Edge_** on your device is required for the correct operation of this automation software.
+
+Sometimes you need to manually download `msedgedriver.exe` from the Microsoft website: https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
+
+Enter the path to the downloaded `msedgedriver.exe` into `system variables`.
+
 Screen resolution and width is rather important when it comes to LinkedIn.
-<br> The script is tested on 1280px and 1366px screen width resolutions.  It is working!
+<br> The script is tested on 1280px and 1366px screen width resolutions. It is working!
 
 ### Change:
-  
-  •  Your browser information You usually use to browse LinkedIn (to reduce automation detection) `USER_AGENT`
-   
-You can find your current browser's user-agent by searching ***"What's my user-agent?"*** in any search engine, it is just a string.
 
-  •  The email to login on LinkedIn `USERNAME`
-  
-  •  Your password `PASSWORD`
+• Your browser information You usually use to browse LinkedIn (to reduce automation detection) `USER_AGENT`
 
-  •  When would You like to revisit the endorsed accounts `ENDORSE_PERIOD`, (people add new skills every so often, 180 days may be effective).
+You can find your current browser's user-agent by searching **_"What's my user-agent?"_** in any search engine, it is just a string.
 
-  •  If You want to <b>revisit old connections</b> and endorse them agains, that is, if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`, set 'ENDORSE_ALL = True'. If you have more than 1000 connections, use it only on a rare occasion, since 'ENDORSE_ALL = True' burns through Your weekly LinkedIn user search limit rather fast. If You have more than 200 connections, leave 'ENDORSE_ALL = False' to open only the recent connections for Your regular recent contacts endorsement procedure.
-    
+• The email to login on LinkedIn `USERNAME`
+
+• Your password `PASSWORD`
+
+• When would You like to revisit the endorsed accounts `ENDORSE_PERIOD`, (people add new skills every so often, 180 days may be effective).
+
+• If You want to <b>revisit old connections</b> and endorse them agains, that is, if You want to revisit ALL old connections with a date of endorsement greater than indicated in the `ENDORSE_PERIOD`, set 'ENDORSE_ALL = True'. If you have more than 1000 connections, use it only on a rare occasion, since 'ENDORSE_ALL = True' burns through Your weekly LinkedIn user search limit rather fast. If You have more than 200 connections, leave 'ENDORSE_ALL = False' to open only the recent connections for Your regular recent contacts endorsement procedure.
+
 ### Install Python:
 
-  •  https://www.python.org/downloads/
+• https://www.python.org/downloads/
 
 ### Install PIP If it Has Not been Installed With Python Automatically:
 
-  •  https://pip.pypa.io/en/stable/installation/
+• https://pip.pypa.io/en/stable/installation/
 
 ### Install Libraries (please open the command line interface):
 
-  •  Selenium `pip install selenium`
+• Selenium `pip install selenium`
 
 ### Endorse Them All!
 
-  •  double-click on `start.bat`
+• double-click on `start.bat`
 
 ### Imporant Notes
 
-  •  To be able to skip the endorsed connections, the links of people endorsed are stored in `endorsed.txt`
-  
+• To be able to skip the recently endorsed connections, the links of people endorsed are stored in `users-and-dates.db`
+
 The fresh version is always here: https://github.com/nakigoe/linkedin-endorse-bot
 <br> Please write if You would like programming lessons: nakigoetenshi@gmail.com
 <br> $60 per hour lessons
@@ -121,7 +132,7 @@ The fresh version is always here: https://github.com/nakigoe/linkedin-endorse-bo
     alt="NAKIGOE.ORG">
 </a></h1>
 
-<p style="margin: 0 auto" align="center">© NAKIGOE.ORG</p> 
+<p style="margin: 0 auto" align="center">© NAKIGOE.ORG</p>
 
 <p style="margin: 0 auto" align="center">All rights reserved and no permissions are granted.</p>
 
