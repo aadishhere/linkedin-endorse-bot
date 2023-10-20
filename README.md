@@ -4,6 +4,10 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 <b>Do a good deed, endorse them all and all their skills!</b>
 
+<b>20 October 2023 upgrade:</b>
+
+• outdated `cookie` files with entire `auth` folder are deleted automatically, and a standard login procedure with a username and password starts;
+
 <b>19 October 2023 major upgrade:</b>
 
 • added `god_click()` (a complex JS click with 3 events) function, clicks like "The&nbsp;Finger&nbsp;of&nbsp;God";
