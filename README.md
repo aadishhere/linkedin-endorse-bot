@@ -40,6 +40,8 @@ A Python Selenium bot to automate endorsing the skills of people in Your contact
 
 ## How To Use
 
+You must use **_English_** LInkedIn for the script to work.
+
 The script has been written and tested many times for use with the **_Microsoft Edge_** browser. Sometimes installing the **LATEST VERSION** of **_Microsoft Edge_** on your device is required for the correct operation of this automation software.
 
 Sometimes you need to manually download `msedgedriver.exe` from the Microsoft website: https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
